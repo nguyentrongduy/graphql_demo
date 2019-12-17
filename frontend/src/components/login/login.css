@@ -1,0 +1,21 @@
+.login {
+  display: table;
+  height: 100%;
+  position: absolute;
+  overflow: hidden;
+  width: 100%;
+}
+
+.h {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.content {
+  margin: auto;
+  vertical-align: middle;
+  margin: 0 auto;
+  width: 400px;
+  padding: 25px 25px 20%;
+
+}
