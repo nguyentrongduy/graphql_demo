@@ -1,104 +1,45 @@
-const { GraphQLServer } = require('graphql-yoga');
-const { get } = require('lodash');
+const { ApolloServer } = require('apollo-server')
 
-const Query = require('./resolvers/Query');
-const Mutation = require('./resolvers/Mutation');
-const Subscription = require('./resolvers/Subscription');
-const { tradeTokenForUser } = require('./services/authService');
+const Query = require('./resolvers/Query')
+const Mutation = require('./resolvers/Mutation')
+const { tradeTokenForUser } = require('./services/authService')
+const { typeDefs } = require('./schema')
 
 const resolvers = {
   Query,
-  Mutation,
-  Subscription
-};
+  Mutation
+}
 
-const HEADER_NAME = 'authorization';
-
-const server = new GraphQLServer({
-  typeDefs: './schema.graphql',
-  // typeDefs:
-  //   `
-  //   type Query {
-  //     posts: PostsResponse
-  //     post(id: String!): PostResponse
-  //     login(username: String!, password: String!): Login!
-  //     userExist(username: String!): UserExist
-  //   }
-    
-  //   type Subscription {
-  //     newPost: Post
-  //   }
-    
-  //   type Mutation {
-  //     createPost(title: String!, description: String!): PostResponse!
-  //     deletePost(id: String!): PostsResponse!
-  //     updatePost(id: String!, title: String!, description: String!): PostsResponse!
-  //     register(username: String!, password: String!, firstName: String!, lastName: String!, address: String!): Register
-  //   }
-    
-  //   type PostsResponse {
-  //     error: [Error]
-  //     data: [Post]
-  //   }
-    
-  //   type PostResponse {
-  //     error: [Error]
-  //     data: Post
-  //   }
-    
-  //   type Post {
-  //     id: String
-  //     title: String
-  //     description: String
-  //   }
-    
-  //   type Login {
-  //     ok: Boolean!
-  //     username: String
-  //     firstName: String
-  //     lastName: String
-  //     token: String
-  //   }
-    
-  //   type Register {
-  //     id: Int!
-  //     username: String!
-  //     firstName: String!
-  //     lastName: String!
-  //     address: String!
-  //   }
-    
-  //   type Error {
-  //     message: String!
-  //     statusCode: Int!
-  //   }
-    
-  //   type UserExist {
-  //     exist: Boolean!
-  //   }
-  // `
-  // ,
+const server = new ApolloServer({
+  typeDefs,
   resolvers,
-  context: async (contexts) => {
-    let authToken = null;
-    let currentUser = null;
+  context: async contexts => {
+    let authToken = null
+    let currentUser = null
 
     try {
-
-      authToken = get(contexts, `request.headers[${HEADER_NAME}]`);
+      authToken =
+        contexts &&
+        contexts.req &&
+        contexts.req.headers &&
+        contexts.req.headers.authorization
+          ? contexts.req.headers.authorization
+          : ''
       if (authToken) {
-        currentUser = await tradeTokenForUser(authToken);
+        currentUser = await tradeTokenForUser(authToken)
       }
     } catch (e) {
-      console.warn(`Unable to authenticate using auth token: ${authToken}`);
+      console.warn(`Unable to authenticate using auth token: ${authToken}`)
       contexts.response.status = '401'
     }
 
     return {
       authToken,
-      currentUser,
-    };
-  },
-});
+      currentUser
+    }
+  }
+})
 
-server.start(() => console.log(`Server is running on http://localhost:4000`))
+server.listen().then(({ url }) => {
+  console.log(`🚀  Server ready at ${url}`)
+})

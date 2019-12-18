@@ -7,10 +7,13 @@
     "start": "node src/index.js"
   },
   "dependencies": {
-    "graphql-yoga": "^1.18.3",
+    "apollo-server": "^2.9.14",
+    "graphql": "^14.5.8",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "mysql": "^2.17.1",
+    "mysql2": "^2.0.2",
+    "sequelize": "^5.21.3",
     "sha256": "^0.2.0"
   },
   "devDependencies": {
