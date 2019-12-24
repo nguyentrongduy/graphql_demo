@@ -1,61 +1,72 @@
-const { getConnection } = require('../datas/dbConnect')
 const sha256 = require('sha256')
+const Post = require('../datas/PostModel')
+const User = require('../datas/UserModel')
 
 function createPost (parent, args, context) {
-  return new Promise((resolve, reject) => {
-    getConnection(function (errCon, connection) {
-      if (errCon) reject(errCon)
-      connection.query(
-        `INSERT INTO posts (title, description) VALUES ('${args.title}', '${args.description}')`,
-        (err, results) => {
-          if (err) reject(err)
-          resolve({
-            data: {
-              title: args.title,
-              description: args.description
-            }
-          })
+  const title = args.title
+  const description = args.description
+  if (title === undefined || title === null) {
+    return {
+      error: [
+        {
+          message: 'title is require.',
+          statusCode: 400
         }
-      )
+      ]
+    }
+  }
+  if (description === undefined || description === null) {
+    return {
+      error: [
+        {
+          message: 'description is require.',
+          statusCode: 400
+        }
+      ]
+    }
+  }
+  return new Promise((resolve, reject) => {
+    Post.create({
+      title: args.title,
+      description: args.description
     })
+      .then(() => {
+        Post.getAll()
+          .then(result => {
+            resolve({
+              data: result.data
+            })
+          })
+          .catch(err => reject(err))
+      })
+      .catch(err => reject(err))
   })
 }
 
 function updatePost (parent, args, context) {
   if (context.currentUser) {
     return new Promise((resolve, reject) => {
-      getConnection((errCon, connection) => {
-        if (errCon) reject(errCon)
-        connection.query(
-          `UPDATE posts
-                SET title = '${args.title}',
-                description = '${args.description}'
-                WHERE id=${args.id};`,
-          (err, result) => {
-            if (err) reject(err)
-            connection.query(
-              'SELECT * FROM posts',
-              (selectErr, selectResults) => {
-                if (selectErr) reject(selectErr)
-                if (selectResults.length > 0) {
-                  resolve({
-                    data: selectResults
-                  })
-                } else {
-                  resolve({
-                    error: [
-                      {
-                        message: 'No Content.',
-                        statusCode: 204
-                      }
-                    ]
-                  })
-                }
-              }
-            )
+      Post.update(
+        {
+          title: args.title,
+          description: args.description
+        },
+        {
+          where: {
+            id: args.id
           }
-        )
-      })
+        }
+      )
+        .then(() => {
+          Post.getAll()
+            .then(result => {
+              resolve({
+                data: result.data
+              })
+            })
+            .catch(err => reject(err))
+        })
+        .catch(err => reject(err))
     })
   }
   return {
@@ -71,35 +82,21 @@ function updatePost (parent, args, context) {
 function deletePost (parent, args, context) {
   if (context.currentUser) {
     return new Promise((resolve, reject) => {
-      getConnection((errCon, connection) => {
-        if (errCon) reject(errCon)
-        connection.query(
-          `DELETE FROM posts WHERE id=${args.id}`,
-          (err, result) => {
-            if (err) reject(err)
-            connection.query(
-              'SELECT * FROM posts',
-              (selectErr, selectResults) => {
-                if (selectErr) reject(selectErr)
-                if (selectResults.length > 0) {
-                  resolve({
-                    data: selectResults
-                  })
-                } else {
-                  resolve({
-                    error: [
-                      {
-                        message: 'No Content.',
-                        statusCode: 204
-                      }
-                    ]
-                  })
-                }
-              }
-            )
-          }
-        )
+      Post.destroy({
+        where: {
+          id: args.id
+        }
       })
+        .then(() => {
+          Post.getAll()
+            .then(result => {
+              resolve({
+                data: result.data
+              })
+            })
+            .catch(err => reject(err))
+        })
+        .catch(err => reject(err))
     })
   }
   return {
@@ -114,42 +111,21 @@ function deletePost (parent, args, context) {
 
 function register (parent, args, context) {
   return new Promise((resolve, reject) => {
-    getConnection((errCon, connection) => {
-      if (errCon) reject(errCon)
-      connection.query(
-        `INSERT INTO users
-            (username, password, firstName, lastName, address) 
-            VALUES
-             ('${args.username}', '${sha256(args.password)}', '${
-          args.firstName
-        }', '${args.lastName}', '${args.address}')`,
-        (err, result) => {
-          if (err) reject(err)
-          connection.query(
-            `SELECT * FROM users WHERE username='${args.username}'`,
-            (selectErr, selectResults) => {
-              if (selectErr) reject(selectErr)
-              if (selectResults.length > 0) {
-                const currentUser = selectResults[0]
-                delete currentUser.password
-                resolve({
-                  data: currentUser
-                })
-              } else {
-                resolve({
-                  error: [
-                    {
-                      message: 'No Content.',
-                      statusCode: 204
-                    }
-                  ]
-                })
-              }
-            }
-          )
-        }
-      )
-    })
+    const values = {
+      username: args.username,
+      password: sha256(args.password),
+      firstName: args.firstName,
+      lastName: args.lastName,
+      address: args.address
+    }
+    User.create(values)
+      .then(result => {
+        console.log(result)
+        resolve({
+          data: result
+        })
+      })
+      .catch(err => reject(err))
   })
 }
 

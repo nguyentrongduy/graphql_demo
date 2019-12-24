@@ -27,7 +27,6 @@ class App extends Component {
 
   render () {
     const { alert, loggedIn } = this.props
-    console.log(this.props)
     return (
       <Router history={history}>
         <div className='App container-fluid'>

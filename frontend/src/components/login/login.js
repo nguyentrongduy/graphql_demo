@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
+
 import { userActions } from '../../_actions/user.actions'
 import './login.css'
 
@@ -103,8 +104,8 @@ class Login extends Component {
 }
 
 function mapState (state) {
-  const { loggingIn, redirectAfterLogin } = state.authentication
-  return { loggingIn, redirectAfterLogin }
+  const { loggingIn, redirectAfterLogin, user } = state.authentication
+  return { loggingIn, redirectAfterLogin, user }
 }
 
 const actionCreators = {

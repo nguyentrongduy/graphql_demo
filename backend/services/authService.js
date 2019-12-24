@@ -1,20 +1,22 @@
-const { getConnection } = require('../datas/dbConnect')
+const jwt = require('jsonwebtoken')
+const User = require('../datas/UserModel')
 
 async function tradeTokenForUser (token) {
   return new Promise((resolve, reject) => {
-    getConnection(function (errCon, connection) {
-      if (errCon) reject(errCon)
-      connection.query(
-        `SELECT * FROM users WHERE token='${token}'`,
-        (err, results) => {
-          if (err) reject(err)
-          if (results.length > 0) {
-            resolve(results[0])
+    const secret = process.env.SECRET
+    jwt.verify(token, secret, (error, payload) => {
+      if (error) {
+        reject(error)
+      } else {
+        const { id } = payload
+        User.getOneByConditions({ id }).then(result => {
+          if (result && result.error && result.error.length > 0) {
+            resolve(null)
           } else {
-            reject(new Error())
+            resolve(result.data)
           }
-        }
-      )
+        })
+      }
     })
   })
 }

@@ -13,7 +13,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createPost(title: String!, description: String!): PostResponse!
+    createPost(title: String!, description: String!): PostsResponse!
     deletePost(id: String!): PostsResponse!
     updatePost(
       id: String!
@@ -26,7 +26,7 @@ const typeDefs = gql`
       firstName: String!
       lastName: String!
       address: String!
-    ): Register
+    ): RegisterResponse!
   }
 
   type PostsResponse {
@@ -37,6 +37,11 @@ const typeDefs = gql`
   type PostResponse {
     error: [Error]
     data: Post
+  }
+
+  type RegisterResponse {
+    error: [Error]
+    data: Register
   }
 
   type Post {

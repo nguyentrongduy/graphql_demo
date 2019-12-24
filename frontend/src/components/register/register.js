@@ -45,6 +45,7 @@ class Register extends Component {
   handleSubmit (event) {
     event.preventDefault()
 
+    const { exist } = this.props
     this.setState({ submitted: true })
     const { user } = this.state
     if (
@@ -52,7 +53,8 @@ class Register extends Component {
       user.password &&
       user.firstName &&
       user.lastName &&
-      user.address
+      user.address &&
+      !exist
     ) {
       this.props.register(user)
     }

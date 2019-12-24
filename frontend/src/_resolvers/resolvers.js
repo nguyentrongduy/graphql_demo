@@ -32,7 +32,7 @@ export const POST_WITH_ID_QUERY = gql`
   }
 `
 
-export const POST_MUTATION = gql`
+export const POST_DELETE_MUTATION = gql`
   mutation DeletePostMutation($id: String!) {
     deletePost(id: $id) {
       error {
@@ -119,11 +119,17 @@ export const REGISTER_MUTATION = gql`
       lastName: $lastName
       address: $address
     ) {
-      id
-      username
-      firstName
-      lastName
-      address
+      error {
+        message
+        statusCode
+      }
+      data {
+        id
+        username
+        firstName
+        lastName
+        address
+      }
     }
   }
 `

@@ -1,4 +1,6 @@
 const { ApolloServer } = require('apollo-server')
+const path = require('path')
+require('dotenv').config({ path: path.join(__dirname, '/.env') })
 
 const Query = require('./resolvers/Query')
 const Mutation = require('./resolvers/Mutation')
@@ -30,7 +32,7 @@ const server = new ApolloServer({
       }
     } catch (e) {
       console.warn(`Unable to authenticate using auth token: ${authToken}`)
-      contexts.response.status = '401'
+      contexts.res.status = '401'
     }
 
     return {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { graphql, ApolloConsumer } from 'react-apollo'
-import { POST_CREATE_MUTATION } from '../../_resolvers/resolvers'
+import { connect } from 'react-redux'
+import { postActions } from '../../_actions/post.actions'
 
 class PostCreateForm extends Component {
   constructor (props) {
@@ -9,6 +9,11 @@ class PostCreateForm extends Component {
       title: '',
       description: ''
     }
+  }
+
+  handleCreatePost (title, description) {
+    this.props.createPost(title, description)
+    this.setState({ title: '', description: '' })
   }
 
   render () {
@@ -38,27 +43,30 @@ class PostCreateForm extends Component {
             placeholder='description for the post'
           />
         </div>
-        <ApolloConsumer>
-          {client => (
-            <button
-              className='btn btn-success'
-              onClick={async () => {
-                const { data } = await client.mutate({
-                  mutation: POST_CREATE_MUTATION,
-                  variables: { title, description }
-                })
-                console.log(data)
-              }}
-            >
-              Create
-            </button>
-          )}
-        </ApolloConsumer>
+        <button
+          className='btn btn-success'
+          onClick={() => {
+            this.handleCreatePost(title, description)
+          }}
+        >
+          Create
+        </button>
       </div>
     )
   }
 }
 
-const CreatePostWithParams = graphql(POST_CREATE_MUTATION)(PostCreateForm)
+function mapState () {
+  return {}
+}
 
-export default CreatePostWithParams
+const actionCreators = {
+  getAllPost: postActions.getAllPost,
+  createPost: postActions.createPost
+}
+
+const connectedPostCreateFormPage = connect(
+  mapState,
+  actionCreators
+)(PostCreateForm)
+export { connectedPostCreateFormPage as PostCreateForm }

@@ -1,10 +1,6 @@
 import React, { Component } from 'react'
-import { graphql, ApolloConsumer } from 'react-apollo'
-import { client } from '../../ApolloClient'
-import {
-  POST_WITH_ID_QUERY,
-  POST_UPDATE_MUTATION
-} from '../../_resolvers/resolvers'
+import { connect } from 'react-redux'
+import { postActions } from '../../_actions/post.actions'
 
 class PostUpdateForm extends Component {
   constructor (props) {
@@ -17,25 +13,28 @@ class PostUpdateForm extends Component {
     }
   }
 
+  componentDidMount () {
+    this.updateState()
+  }
+
   componentDidUpdate () {
-    if (this.props.data.id && this.props.data.id !== this.state.prevId) {
-      client
-        .query({
-          query: POST_WITH_ID_QUERY,
-          variables: { id: this.props.data.id }
-        })
-        .then(response => {
-          const post = response.data.post.data
-          this.setState({
-            ...this.state,
-            id: post.id,
-            title: post.title,
-            description: post.description,
-            prevId: post.id
-          })
-          console.log(response)
-        })
+    this.updateState()
+  }
+
+  updateState () {
+    const post = this.props.post.data
+    if (post && post.id && post.id !== this.state.prevId) {
+      this.setState({
+        id: post.id,
+        title: post.title,
+        description: post.description,
+        prevId: post.id
+      })
     }
+  }
+
+  handleUpdatePost (id, title, description) {
+    this.props.updatePost(id, title, description)
   }
 
   render () {
@@ -48,7 +47,7 @@ class PostUpdateForm extends Component {
           <input
             id='title'
             className='form-control'
-            value={title}
+            value={this.state.title}
             onChange={e => this.setState({ title: e.target.value })}
             type='text'
             placeholder='title for the post'
@@ -59,34 +58,37 @@ class PostUpdateForm extends Component {
           <input
             id='description'
             className='form-control'
-            value={description}
+            value={this.state.description}
             onChange={e => this.setState({ description: e.target.value })}
             type='text'
             placeholder='description for the post'
           />
         </div>
-        <ApolloConsumer>
-          {client => (
-            <button
-              className='btn btn-success'
-              onClick={async () => {
-                const { data } = await client.mutate({
-                  mutation: POST_UPDATE_MUTATION,
-                  variables: { id, title, description }
-                })
-                console.log(this.state)
-                console.log(data)
-              }}
-            >
-              Update
-            </button>
-          )}
-        </ApolloConsumer>
+
+        <button
+          className='btn btn-success'
+          onClick={() => {
+            this.handleUpdatePost(id, title, description)
+          }}
+        >
+          Update
+        </button>
       </div>
     )
   }
 }
 
-const UpdatePostWithParams = graphql(POST_UPDATE_MUTATION)(PostUpdateForm)
+function mapState (state) {
+  const { post } = state.post
+  return { post }
+}
 
-export default UpdatePostWithParams
+const actionCreators = {
+  updatePost: postActions.updatePost
+}
+
+const connectedPostUpdateFormPage = connect(
+  mapState,
+  actionCreators
+)(PostUpdateForm)
+export { connectedPostUpdateFormPage as PostUpdateForm }

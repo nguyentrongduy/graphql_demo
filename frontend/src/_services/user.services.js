@@ -30,7 +30,6 @@ function login (username, password) {
 }
 
 function logout () {
-  // remove user from local storage to log user out
   window.localStorage.removeItem('user')
 }
 
@@ -46,9 +45,8 @@ function register (user) {
         lastName: user.lastName
       }
     })
-    .then(handleRegisterResponse)
-    .then(user => {
-      return user
+    .then(response => {
+      return response.data.register
     })
 }
 
@@ -67,13 +65,5 @@ function handleLoginResponse (response) {
   if (_isNil(response, 'data.login')) {
     return null
   }
-  // else if (!response.data.login.ok) {
-  //     window.location.reload(true);
-  //     return null;
-  // }
   return response.data
-}
-
-function handleRegisterResponse (response) {
-  return response.data.register
 }

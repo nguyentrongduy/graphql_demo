@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize')
-const { sequelize } = require('./dbConnect')
+const { sequelizeConnect } = require('./dbConnect')
 
 const Model = Sequelize.Model
 class PostModel extends Model {}
@@ -7,7 +7,9 @@ PostModel.init(
   {
     id: {
       type: Sequelize.NUMBER,
-      primaryKey: true
+      primaryKey: true,
+      allowNull: false,
+      autoIncrement: true
     },
     title: {
       type: Sequelize.STRING
@@ -17,7 +19,7 @@ PostModel.init(
     }
   },
   {
-    sequelize,
+    sequelize: sequelizeConnect,
     timestamps: true,
     modelName: 'posts'
   }
@@ -39,11 +41,11 @@ function getById (id) {
   return new Promise((resolve, reject) => {
     PostModel.findByPk(id)
       .then(result => {
-        if (result)
+        if (result) {
           resolve({
             data: result
           })
-        else
+        } else {
           resolve({
             error: [
               {
@@ -52,12 +54,49 @@ function getById (id) {
               }
             ]
           })
+        }
+      })
+      .catch(err => reject(err))
+  })
+}
+
+function create (values, options = {}) {
+  return new Promise((resolve, reject) => {
+    PostModel.create(values, options)
+      .then(result => {
+        resolve({
+          data: result
+        })
+      })
+      .catch(err => reject(err))
+  })
+}
+
+function update (values, options = {}) {
+  return new Promise((resolve, reject) => {
+    PostModel.update(values, options)
+      .then(() => {
+        resolve()
+      })
+      .catch(err => reject(err))
+  })
+}
+
+function destroy (options = {}) {
+  return new Promise((resolve, reject) => {
+    PostModel.destroy(options)
+      .then(() => {
+        resolve()
       })
       .catch(err => reject(err))
   })
 }
 
 module.exports = {
+  model: PostModel,
   getAll,
-  getById
+  getById,
+  create,
+  update,
+  destroy
 }
