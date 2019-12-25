@@ -1,4 +1,3 @@
-import { get as _get } from 'lodash'
 import { userConstants } from '../_constants'
 import { userService } from '../_services'
 import { alertActions } from './alert.actions'
@@ -16,7 +15,7 @@ function login (username, password) {
 
     userService.login(username, password).then(
       data => {
-        if (_get(data, 'login.ok')) {
+        if (data && data.login && data.login.ok) {
           dispatch(success(data))
         } else {
           dispatch(alertActions.error('username or password is incorrect'))

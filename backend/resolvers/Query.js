@@ -1,5 +1,4 @@
 const sha256 = require('sha256')
-const moment = require('moment')
 const jwt = require('jsonwebtoken')
 
 const Post = require('../datas/PostModel')
@@ -56,7 +55,7 @@ function login (obj, args, context, info) {
             {
               id: user.id,
               username: user.username,
-              iat: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
+              exp: Math.floor(Date.now() / 1000) + 5 /*60 * 60 * 24 * 30*/
             },
             secret
           )

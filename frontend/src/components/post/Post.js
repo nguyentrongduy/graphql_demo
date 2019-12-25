@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { isNil as _isNil, get as _get } from 'lodash'
 
 import { postActions } from '../../_actions/post.actions'
 import { PostCreateForm } from '../post-create-form/PostCreateForm'
@@ -73,7 +72,7 @@ class Post extends Component {
                     </tr>
                   )
                 })}
-              {(_isNil(_get(posts, 'data')) || posts.data.length === 0) && (
+              {(!posts || !posts.data || posts.data.length === 0) && (
                 <tr>
                   <td className='no-content' colSpan='4'>
                     No Content!

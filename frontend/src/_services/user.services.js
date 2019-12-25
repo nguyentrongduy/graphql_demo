@@ -1,4 +1,3 @@
-import { isNil as _isNil, get as _get } from 'lodash'
 import {
   LOGIN_QUERY,
   REGISTER_MUTATION,
@@ -17,6 +16,7 @@ function login (username, password) {
   return client
     .query({
       query: LOGIN_QUERY,
+      fetchPolicy: 'no-cache',
       variables: { username, password }
     })
     .then(handleLoginResponse)
@@ -54,16 +54,26 @@ function userExist (username) {
   return client
     .query({
       query: USER_EXIST,
+      fetchPolicy: 'no-cache',
       variables: { username }
     })
     .then(response => {
-      return _get(response, 'data.userExist.exist', false)
+      if (
+        response &&
+        response.data &&
+        response.data.userExist &&
+        response.data.userExist.exist
+      ) {
+        return response.data.userExist.exist
+      } else {
+        return false
+      }
     })
 }
 
 function handleLoginResponse (response) {
-  if (_isNil(response, 'data.login')) {
-    return null
+  if (response && response.data && response.data.login) {
+    return response.data
   }
-  return response.data
+  return null
 }

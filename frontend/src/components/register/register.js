@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { debounce as _debounce } from 'lodash'
+// import { debounce as _debounce } from 'lodash'
 
 import { userActions } from '../../_actions'
+import { debounce } from '../../_helpers/utils'
 import './register.css'
 
 class Register extends Component {
@@ -21,7 +22,7 @@ class Register extends Component {
       submitted: false
     }
 
-    this._debounceExistUser = _debounce(username => {
+    this._debounceExistUser = debounce(username => {
       this.props.userExist(username)
     }, 300)
     this.handleChange = this.handleChange.bind(this)

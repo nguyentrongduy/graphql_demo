@@ -3,44 +3,54 @@ const Post = require('../datas/PostModel')
 const User = require('../datas/UserModel')
 
 function createPost (parent, args, context) {
-  const title = args.title
-  const description = args.description
-  if (title === undefined || title === null) {
-    return {
-      error: [
-        {
-          message: 'title is require.',
-          statusCode: 400
-        }
-      ]
+  if (context.currentUser) {
+    const title = args.title
+    const description = args.description
+    if (title === undefined || title === null) {
+      return {
+        error: [
+          {
+            message: 'title is require.',
+            statusCode: 400
+          }
+        ]
+      }
     }
-  }
-  if (description === undefined || description === null) {
-    return {
-      error: [
-        {
-          message: 'description is require.',
-          statusCode: 400
-        }
-      ]
+    if (description === undefined || description === null) {
+      return {
+        error: [
+          {
+            message: 'description is require.',
+            statusCode: 400
+          }
+        ]
+      }
     }
-  }
-  return new Promise((resolve, reject) => {
-    Post.create({
-      title: args.title,
-      description: args.description
-    })
-      .then(() => {
-        Post.getAll()
-          .then(result => {
-            resolve({
-              data: result.data
-            })
-          })
-          .catch(err => reject(err))
+    return new Promise((resolve, reject) => {
+      Post.create({
+        title: args.title,
+        description: args.description
       })
-      .catch(err => reject(err))
-  })
+        .then(() => {
+          Post.getAll()
+            .then(result => {
+              resolve({
+                data: result.data
+              })
+            })
+            .catch(err => reject(err))
+        })
+        .catch(err => reject(err))
+    })
+  }
+  return {
+    error: [
+      {
+        message: 'Unauthorized',
+        statusCode: 401
+      }
+    ]
+  }
 }
 
 function updatePost (parent, args, context) {
