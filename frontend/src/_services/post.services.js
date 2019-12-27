@@ -7,7 +7,7 @@ import {
 } from '../_resolvers/resolvers'
 import { client } from '../ApolloClient'
 
-export const postService = {
+export const PostService = {
   getAllPost,
   getPostById,
   createPost,
@@ -78,6 +78,6 @@ function updatePost (id, title, description) {
       variables: { id, title, description }
     })
     .then(result => {
-      return result.data.post
+      return result.data.updatePost
     })
 }

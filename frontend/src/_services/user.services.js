@@ -1,15 +1,16 @@
 import {
   LOGIN_QUERY,
   REGISTER_MUTATION,
-  USER_EXIST
+  USER_EXIST,
+  CHECK_LOGGEDIN_QUERY
 } from '../_resolvers/resolvers'
 import { client } from '../ApolloClient'
 
-export const userService = {
+export const UserService = {
   login,
-  logout,
   register,
-  userExist
+  userExist,
+  checkLoggedIn
 }
 
 function login (username, password) {
@@ -21,16 +22,20 @@ function login (username, password) {
     })
     .then(handleLoginResponse)
     .then(data => {
-      const user = data.login
-      if (data.login.ok) {
-        window.localStorage.setItem('user', JSON.stringify(user))
-      }
-      return data
+      return data.login
     })
 }
 
-function logout () {
-  window.localStorage.removeItem('user')
+function checkLoggedIn (token) {
+  return client
+    .query({
+      query: CHECK_LOGGEDIN_QUERY,
+      fetchPolicy: 'no-cache',
+      variables: { token }
+    })
+    .then(resp => {
+      return resp.data.checkLoggedIn
+    })
 }
 
 function register (user) {

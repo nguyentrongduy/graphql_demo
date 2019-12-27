@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { observer, inject } from 'mobx-react'
 // import { debounce as _debounce } from 'lodash'
 
-import { userActions } from '../../_actions'
 import { debounce } from '../../_helpers/utils'
 import './register.css'
 
@@ -22,8 +21,10 @@ class Register extends Component {
       submitted: false
     }
 
+    const { store } = this.props
+
     this._debounceExistUser = debounce(username => {
-      this.props.userExist(username)
+      store.userExist(username)
     }, 300)
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -46,7 +47,7 @@ class Register extends Component {
   handleSubmit (event) {
     event.preventDefault()
 
-    const { exist } = this.props
+    const { store } = this.props
     this.setState({ submitted: true })
     const { user } = this.state
     if (
@@ -55,14 +56,14 @@ class Register extends Component {
       user.firstName &&
       user.lastName &&
       user.address &&
-      !exist
+      !store.RegisterUserExist
     ) {
-      this.props.register(user)
+      store.register(user)
     }
   }
 
   render () {
-    const { registering, exist } = this.props
+    const { registering, store } = this.props
     const { user, submitted } = this.state
     return (
       <div className='col-md-6 col-md-offset-3'>
@@ -74,7 +75,7 @@ class Register extends Component {
             }
           >
             <label htmlFor='username'>Username</label>
-            {exist && (
+            {store && store.RegisterUserExist && (
               <div className='help-block required'>Username is exist</div>
             )}
             <input
@@ -176,15 +177,4 @@ class Register extends Component {
   }
 }
 
-function mapState (state) {
-  const { registering, exist } = state.registration
-  return { registering, exist }
-}
-
-const actionCreators = {
-  register: userActions.register,
-  userExist: userActions.userExist
-}
-
-const connectedRegister = connect(mapState, actionCreators)(Register)
-export { connectedRegister as Register }
+export default inject('store')(observer(Register))

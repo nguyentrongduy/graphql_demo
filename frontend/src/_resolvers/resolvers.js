@@ -11,6 +11,8 @@ export const POST_QUERY = gql`
         id
         title
         description
+        createdAt
+        updatedAt
       }
     }
   }
@@ -88,10 +90,19 @@ export const LOGIN_QUERY = gql`
   query LoginQuery($username: String!, $password: String!) {
     login(username: $username, password: $password) {
       ok
+      id
       username
       firstName
       lastName
       token
+    }
+  }
+`
+
+export const CHECK_LOGGEDIN_QUERY = gql`
+  query CheckLoggedIn($token: String!) {
+    checkLoggedIn(token: $token) {
+      isLogged
     }
   }
 `

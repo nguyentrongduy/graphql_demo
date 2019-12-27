@@ -55,12 +55,13 @@ function login (obj, args, context, info) {
             {
               id: user.id,
               username: user.username,
-              exp: Math.floor(Date.now() / 1000) + 5 /*60 * 60 * 24 * 30*/
+              exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
             },
             secret
           )
           resolve({
             ok: true,
+            id: user.id,
             username: user.username,
             firstName: user.firstName,
             lastName: user.lastName,
@@ -69,6 +70,33 @@ function login (obj, args, context, info) {
         }
       })
       .catch(err => reject(err))
+  })
+}
+
+function checkLoggedIn (parent, args, context) {
+  const { token } = args
+  return new Promise((resolve, reject) => {
+    const secret = process.env.SECRET
+    jwt.verify(token, secret, (error, payload) => {
+      if (error) {
+        resolve({
+          isLogged: false
+        })
+      } else {
+        const { id } = payload
+        User.getOneByConditions({ id }).then(result => {
+          if (result && result.error && result.error.length > 0) {
+            resolve({
+              isLogged: false
+            })
+          } else {
+            resolve({
+              isLogged: true
+            })
+          }
+        })
+      }
+    })
   })
 }
 
@@ -102,5 +130,6 @@ module.exports = {
   posts,
   post,
   login,
-  userExist
+  userExist,
+  checkLoggedIn
 }

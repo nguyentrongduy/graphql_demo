@@ -1,16 +1,15 @@
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { observer, inject } from 'mobx-react'
 
-import { userActions } from '../../_actions/user.actions'
 import './login.css'
 
 class Login extends Component {
   constructor (props) {
     super(props)
 
-    // reset login status
-    this.props.logout()
+    const { store } = this.props
+    store.logout()
 
     this.state = {
       username: '',
@@ -29,18 +28,20 @@ class Login extends Component {
 
   handleSubmit (e) {
     e.preventDefault()
+    const store = this.props.store
 
     this.setState({ submitted: true })
     const { username, password } = this.state
     if (username && password) {
-      this.props.login(username, password)
+      store.login(username, password)
     }
   }
 
   render () {
-    const { loggingIn, redirectAfterLogin } = this.props
+    const { store } = this.props
+    const { LoggingIn, LoggedIn } = store
     const { username, password, submitted } = this.state
-    if (redirectAfterLogin) {
+    if (LoggedIn) {
       return <Redirect to='/' />
     }
     return (
@@ -85,7 +86,7 @@ class Login extends Component {
               </div>
               <div className='form-group'>
                 <button className='btn btn-primary'>Login</button>
-                {loggingIn && (
+                {LoggingIn && (
                   <img
                     alt='Login'
                     src='data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=='
@@ -103,15 +104,4 @@ class Login extends Component {
   }
 }
 
-function mapState (state) {
-  const { loggingIn, redirectAfterLogin, user } = state.authentication
-  return { loggingIn, redirectAfterLogin, user }
-}
-
-const actionCreators = {
-  login: userActions.login,
-  logout: userActions.logout
-}
-
-const connectedLoginPage = connect(mapState, actionCreators)(Login)
-export { connectedLoginPage as Login }
+export default inject('store')(observer(Login))

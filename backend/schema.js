@@ -5,7 +5,8 @@ const typeDefs = gql`
     posts: PostsResponse
     post(id: String!): PostResponse
     login(username: String!, password: String!): Login!
-    userExist(username: String!): UserExist
+    userExist(username: String!): UserExist,
+    checkLoggedIn(token: String!): CheckLoggedInResponse!
   }
 
   type Subscription {
@@ -48,10 +49,17 @@ const typeDefs = gql`
     id: String
     title: String
     description: String
+    createdAt: String
+    updatedAt: String
+  }
+
+  type CheckLoggedInResponse {
+    isLogged: Boolean!
   }
 
   type Login {
     ok: Boolean!
+    id: Int
     username: String
     firstName: String
     lastName: String

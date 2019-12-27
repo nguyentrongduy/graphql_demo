@@ -1,32 +1,41 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import { observer, inject } from 'mobx-react'
 
-import { postActions } from '../../_actions/post.actions'
-import { PostCreateForm } from '../post-create-form/PostCreateForm'
-import { PostUpdateForm } from '../post-update-form/PostUpdateForm'
+import PostCreateForm from '../post-create-form/PostCreateForm'
+import PostUpdateForm from '../post-update-form/PostUpdateForm'
 
 class Post extends Component {
   constructor (props) {
     super(props)
-    this.props.getAllPost()
+    this.props.store.getAllPost()
+    this.store = this.props.store
   }
 
   setFormStatus (status) {
     this.props.setFormStatus(status)
   }
 
-  handleDeletePost (id, title) {
+  handleDeletePost (func, title) {
     if (window.confirm(`Delete ${title}?`)) {
-      this.props.deletePost(id)
+      return func().then(resp => {
+        if (resp && resp.error && resp.error.length > 0) {
+        } else {
+          this.props.store.setPostsData(resp.data)
+        }
+      })
     }
   }
 
-  handleGetPostById (id) {
-    this.props.getPostById(id)
+  handleGetPostById (func, id) {
+    func(id).then(resp => {
+      if (resp && resp.error && resp.error.length > 0) {
+      } else {
+      }
+    })
   }
 
   render () {
-    const { posts, post, isCreate } = this.props
+    const { store } = this.props
     return (
       <div className='Post row'>
         <div className='col-12'>
@@ -40,9 +49,9 @@ class Post extends Component {
               </tr>
             </thead>
             <tbody>
-              {posts &&
-                posts.data &&
-                posts.data.map((post, index) => {
+              {store &&
+                store.Posts &&
+                store.Posts.map((post, index) => {
                   return (
                     <tr key={index}>
                       <td>{post.id}</td>
@@ -52,8 +61,8 @@ class Post extends Component {
                         <div>
                           <button
                             className='btn btn-warning'
-                            onClick={() => {
-                              this.handleDeletePost(post.id, post.title)
+                            onClick={async () => {
+                              this.handleDeletePost(post.deletePost, post.title)
                             }}
                           >
                             Delete
@@ -61,8 +70,11 @@ class Post extends Component {
                           <button
                             className='btn btn-info'
                             onClick={() => {
-                              this.handleGetPostById(post.id)
-                              this.setFormStatus(false)
+                              this.handleGetPostById(
+                                store.getPostEditModelById,
+                                post.id
+                              )
+                              store.formIsUpdate(true)
                             }}
                           >
                             Edit
@@ -72,7 +84,7 @@ class Post extends Component {
                     </tr>
                   )
                 })}
-              {(!posts || !posts.data || posts.data.length === 0) && (
+              {(!store || !store.Posts || store.Posts.length === 0) && (
                 <tr>
                   <td className='no-content' colSpan='4'>
                     No Content!
@@ -83,22 +95,22 @@ class Post extends Component {
           </table>
         </div>
 
-        {isCreate ? (
+        {store && !store.IsUpdate ? (
           <div className='col-4'>
             <PostCreateForm />
           </div>
         ) : null}
-        {!isCreate && post ? (
+        {store && store.IsUpdate && store.PostEditModel ? (
           <div className='col-4'>
             <button
               className='btn btn-success'
               onClick={() => {
-                this.setFormStatus(true)
+                store.formIsUpdate(false)
               }}
             >
               Create
             </button>
-            <PostUpdateForm />
+            <PostUpdateForm PostEditModel={store.PostEditModel} />
           </div>
         ) : null}
       </div>
@@ -106,17 +118,4 @@ class Post extends Component {
   }
 }
 
-function mapState (state) {
-  const { post, formStatus } = state
-  return { posts: post.posts, post: post.post, isCreate: formStatus.isCreate }
-}
-
-const actionCreators = {
-  getAllPost: postActions.getAllPost,
-  deletePost: postActions.deletePost,
-  getPostById: postActions.getPostById,
-  setFormStatus: postActions.setFormStatus
-}
-
-const connectedPostPage = connect(mapState, actionCreators)(Post)
-export { connectedPostPage as Post }
+export default inject('store')(observer(Post))

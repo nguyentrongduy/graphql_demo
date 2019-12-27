@@ -1,26 +1,54 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { postActions } from '../../_actions/post.actions'
+import { observer, inject } from 'mobx-react'
 
-class PostCreateForm extends Component {
+class PostUpdateForm extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      id: '',
       title: '',
-      description: ''
+      description: '',
+      prevId: null
+    }
+    this.store = this.props
+  }
+
+  componentDidMount () {
+    this.updateState()
+  }
+
+  componentDidUpdate () {
+    this.updateState()
+  }
+
+  updateState () {
+    const post = this.props.PostEditModel
+    if (post && post.id && post.id !== this.state.prevId) {
+      this.setState({
+        id: post.id,
+        title: post.title,
+        description: post.description,
+        prevId: post.id
+      })
     }
   }
 
-  handleCreatePost (title, description) {
-    this.props.createPost(title, description)
-    this.setState({ title: '', description: '' })
+  handleUpdatePost (func, title, description) {
+    const store = this.props.store
+    func(title, description).then(resp => {
+      if (resp && resp.error && resp.error.length > 0) {
+      } else {
+        store.setPostsData(resp.data)
+      }
+    })
   }
 
   render () {
     const { title, description } = this.state
+    const post = this.props.PostEditModel
     return (
-      <div className='col-12'>
-        <h2>Create</h2>
+      <div className='col-xs-12'>
+        <h2 className={post.id}>Update {post.title}</h2>
         <div className='form-group'>
           <label htmlFor='title'>Title</label>
           <input
@@ -43,30 +71,18 @@ class PostCreateForm extends Component {
             placeholder='description for the post'
           />
         </div>
+
         <button
           className='btn btn-success'
           onClick={() => {
-            this.handleCreatePost(title, description)
+            this.handleUpdatePost(post.updatePost, title, description)
           }}
         >
-          Create
+          Update
         </button>
       </div>
     )
   }
 }
 
-function mapState () {
-  return {}
-}
-
-const actionCreators = {
-  getAllPost: postActions.getAllPost,
-  createPost: postActions.createPost
-}
-
-const connectedPostCreateFormPage = connect(
-  mapState,
-  actionCreators
-)(PostCreateForm)
-export { connectedPostCreateFormPage as PostCreateForm }
+export default inject('store')(observer(PostUpdateForm))
