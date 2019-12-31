@@ -10,7 +10,7 @@ import registerServiceWorker from './registerServiceWorker'
 import RootStore from './models/rootStore'
 import { client } from './ApolloClient'
 
-const store = RootStore.create({})
+const store = RootStore
 
 ReactDOM.render(
   <Provider store={store}>

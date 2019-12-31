@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import { Link, Redirect } from 'react-router-dom'
+import Link from 'next/link'
+import Router from 'next/router'
 import { observer, inject } from 'mobx-react'
-
-import './login.css'
 
 class Login extends Component {
   constructor (props) {
@@ -33,17 +32,19 @@ class Login extends Component {
     this.setState({ submitted: true })
     const { username, password } = this.state
     if (username && password) {
-      store.login(username, password)
+      store.login(username, password).then(isOk => {
+        if (isOk) {
+          Router.push('/')
+        }
+        console.log(isOk)
+      })
     }
   }
 
   render () {
     const { store } = this.props
-    const { LoggingIn, LoggedIn } = store
+    const { LoggingIn } = store
     const { username, password, submitted } = this.state
-    if (LoggedIn) {
-      return <Redirect to='/' />
-    }
     return (
       <div className='login'>
         <div className='h'>
@@ -92,8 +93,8 @@ class Login extends Component {
                     src='data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=='
                   />
                 )}
-                <Link to='/register' className='btn btn-link'>
-                  Register
+                <Link href='/register'>
+                  <a className='btn btn-link'>Register</a>
                 </Link>
               </div>
             </form>

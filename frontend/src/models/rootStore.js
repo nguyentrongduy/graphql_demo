@@ -1,9 +1,11 @@
-import { types } from 'mobx-state-tree'
+import { types, applySnapshot } from 'mobx-state-tree'
 import PostStore from './postStore'
 import UserStore from './userStore'
 import AlertStore from './alertStore'
 import { PostService } from '../_services/post.services'
 import { UserService } from '../_services/user.services'
+
+let store = null
 
 const RootStore = types
   .model('Post', {
@@ -64,29 +66,35 @@ const RootStore = types
     },
     async login (username, password) {
       this.setLoggingIn(true)
+      this.setLoggedIn(false)
       const data = await UserService.login(username, password)
       this.setLoggingIn(false)
       if (data.ok) {
         this.setUserloged(data)
         window.localStorage.setItem('user', JSON.stringify(data))
         this.setLoggedIn(true)
-      } else {
       }
+      return data.ok
     },
     async checkLoggedIn () {
-      this.setLoggedIn(false)
-      const userStr = window.localStorage.getItem('user')
-      if (userStr) {
-        const { token } = JSON.parse(userStr)
-        const { isLogged } = await UserService.checkLoggedIn(token)
-        if (isLogged) {
-          this.setLoggedIn(true)
+      if (process.browser) {
+        this.setLoggedIn(false)
+        const userStr = window.localStorage.getItem('user')
+        if (userStr) {
+          const { token } = JSON.parse(userStr)
+          const { isLogged } = await UserService.checkLoggedIn(token)
+          if (isLogged) {
+            this.setLoggedIn(true)
+          }
         }
       }
+      return seft.LoggedIn
     },
     logout () {
-      this.setLoggedIn(false)
-      window.localStorage.removeItem('user')
+      if (process.browser) {
+        this.setLoggedIn(false)
+        window.localStorage.removeItem('user')
+      }
     },
     async register (user) {
       const resp = await UserService.register(user)
@@ -111,4 +119,15 @@ const RootStore = types
     }
   }))
 
-export default RootStore
+export function initializeStore (isServer, snapshot = null) {
+  if (isServer && store === null) {
+    store = RootStore.create({ lastUpdate: Date.now() })
+  }
+  if (store === null) {
+    store = RootStore.create({ lastUpdate: Date.now() })
+  }
+  if (snapshot) {
+    applySnapshot(store, snapshot)
+  }
+  return store
+}

@@ -3,12 +3,15 @@ import { observer, inject } from 'mobx-react'
 
 import PostCreateForm from '../post-create-form/PostCreateForm'
 import PostUpdateForm from '../post-update-form/PostUpdateForm'
+import Head from '../head/head'
 
 class Post extends Component {
   constructor (props) {
     super(props)
     this.props.store.getAllPost()
-    this.store = this.props.store
+
+    const { store } = this.props
+    store.checkLoggedIn()
   }
 
   setFormStatus (status) {
@@ -38,6 +41,7 @@ class Post extends Component {
     const { store } = this.props
     return (
       <div className='Post row'>
+        <Head />
         <div className='col-12'>
           <table className='table table-striped'>
             <thead>
