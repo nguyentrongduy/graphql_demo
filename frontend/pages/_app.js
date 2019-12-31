@@ -33,7 +33,8 @@ export default class CustomApp extends App {
       if (
         this.props &&
         this.props.router &&
-        this.props.router.route !== '/login'
+        this.props.router.route !== '/login' &&
+        this.props.router.route !== '/register'
       ) {
         this.store.checkLoggedIn().then(resp => {
           if (!resp) {

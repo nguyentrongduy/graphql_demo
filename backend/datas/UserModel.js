@@ -135,7 +135,6 @@ function update (values, id, options = {}) {
       ...options
     })
       .then(result => {
-        console.log(result)
         resolve()
       })
       .catch(err => reject(err))

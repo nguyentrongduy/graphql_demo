@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { observer, inject } from 'mobx-react'
 
-import PostCreateForm from '../post-create-form/PostCreateForm'
-import PostUpdateForm from '../post-update-form/PostUpdateForm'
+import PostForm from '../post-form/PostForm'
 import Head from '../head/head'
 
 class Post extends Component {
@@ -12,6 +11,7 @@ class Post extends Component {
 
     const { store } = this.props
     store.checkLoggedIn()
+    store.clearAlert()
   }
 
   setFormStatus (status) {
@@ -99,12 +99,12 @@ class Post extends Component {
           </table>
         </div>
 
-        {store && !store.IsUpdate ? (
-          <div className='col-4'>
-            <PostCreateForm />
-          </div>
-        ) : null}
-        {store && store.IsUpdate && store.PostEditModel ? (
+        {/* {store && !store.IsUpdate ? ( */}
+        <div className='col-4'>
+          <PostForm />
+        </div>
+        {/* ) : null} */}
+        {/* {store && store.IsUpdate && store.PostEditModel ? (
           <div className='col-4'>
             <button
               className='btn btn-success'
@@ -116,7 +116,7 @@ class Post extends Component {
             </button>
             <PostUpdateForm PostEditModel={store.PostEditModel} />
           </div>
-        ) : null}
+        ) : null} */}
       </div>
     )
   }

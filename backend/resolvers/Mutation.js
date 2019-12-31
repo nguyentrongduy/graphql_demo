@@ -130,7 +130,6 @@ function register (parent, args, context) {
     }
     User.create(values)
       .then(result => {
-        console.log(result)
         resolve({
           data: result
         })

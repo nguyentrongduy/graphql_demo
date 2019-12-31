@@ -34,10 +34,13 @@ const RootStore = types
     setRegisterUserExist (status) {
       seft.RegisterUserExist = status
     },
+    clearAlert () {
+      seft.AlertState = null
+    },
     async setAlertState (alertState) {
       seft.AlertState = alertState
       setTimeout(() => {
-        this.setAlertState(null)
+        this.clearAlert()
       }, 5000)
     },
     async getAllPost () {
@@ -103,11 +106,13 @@ const RootStore = types
           message: 'Register failure, try again later.',
           type: 'alert-error'
         })
+        return false
       } else {
         this.setAlertState({
           message: 'Register success.',
           type: 'alert-success'
         })
+        return true
       }
     },
     async userExist (username) {

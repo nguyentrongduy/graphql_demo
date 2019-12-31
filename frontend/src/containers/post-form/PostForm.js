@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { observer, inject } from 'mobx-react'
 
-class PostUpdateForm extends Component {
+class PostForm extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -10,11 +10,6 @@ class PostUpdateForm extends Component {
       description: '',
       prevId: null
     }
-    this.store = this.props
-  }
-
-  componentDidMount () {
-    this.updateState()
   }
 
   componentDidUpdate () {
@@ -22,8 +17,10 @@ class PostUpdateForm extends Component {
   }
 
   updateState () {
-    const post = this.props.PostEditModel
-    if (post && post.id && post.id !== this.state.prevId) {
+    const { store } = this.props
+
+    const post = store.PostEditModel
+    if (post && post.id && post.id !== this.state.prevId && store.IsUpdate) {
       this.setState({
         id: post.id,
         title: post.title,
@@ -31,6 +28,16 @@ class PostUpdateForm extends Component {
         prevId: post.id
       })
     }
+  }
+
+  handleCreatePost (title, description) {
+    const store = this.props.store
+    store.createPost(title, description).then(resp => {
+      if (resp && resp.error && resp.error.length > 0) {
+      } else {
+      }
+    })
+    this.setState({ title: '', description: '' })
   }
 
   handleUpdatePost (func, title, description) {
@@ -45,10 +52,26 @@ class PostUpdateForm extends Component {
 
   render () {
     const { title, description } = this.state
-    const post = this.props.PostEditModel
+    const { store } = this.props
+    const post = store.PostEditModel
     return (
-      <div className='col-xs-12'>
-        <h2 className={post.id}>Update {post.title}</h2>
+      <div className='col-12'>
+        {store && store.IsUpdate && store.PostEditModel ? (
+          <button
+            className='btn btn-success'
+            onClick={() => {
+              store.formIsUpdate(false)
+              this.setState({ title: '', description: '', prevId: null })
+            }}
+          >
+            Create
+          </button>
+        ) : null}
+        {store && store.IsUpdate && store.PostEditModel ? (
+          <h2 key={post.id}>Update</h2>
+        ) : (
+          <h2>Create</h2>
+        )}
         <div className='form-group'>
           <label htmlFor='title'>Title</label>
           <input
@@ -71,18 +94,21 @@ class PostUpdateForm extends Component {
             placeholder='description for the post'
           />
         </div>
-
         <button
           className='btn btn-success'
           onClick={() => {
-            this.handleUpdatePost(post.updatePost, title, description)
+            if (store.IsUpdate) {
+              this.handleUpdatePost(post.updatePost, title, description)
+            } else {
+              this.handleCreatePost(title, description)
+            }
           }}
         >
-          Update
+          {store && store.IsUpdate ? 'Update' : 'Create'}
         </button>
       </div>
     )
   }
 }
 
-export default inject('store')(observer(PostUpdateForm))
+export default inject('store')(observer(PostForm))

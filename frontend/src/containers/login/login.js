@@ -3,6 +3,8 @@ import Link from 'next/link'
 import Router from 'next/router'
 import { observer, inject } from 'mobx-react'
 
+import Head from '../head/head'
+
 class Login extends Component {
   constructor (props) {
     super(props)
@@ -36,7 +38,6 @@ class Login extends Component {
         if (isOk) {
           Router.push('/')
         }
-        console.log(isOk)
       })
     }
   }
@@ -47,6 +48,7 @@ class Login extends Component {
     const { username, password, submitted } = this.state
     return (
       <div className='login'>
+        <Head />
         <div className='h'>
           <div className='content'>
             <h2>Login</h2>
