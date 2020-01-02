@@ -5,7 +5,7 @@ import {
   POST_DELETE_MUTATION,
   POST_UPDATE_MUTATION
 } from '../_resolvers/resolvers'
-import { client } from '../ApolloClient'
+import { getClient } from '../ApolloClient'
 
 export const PostService = {
   getAllPost,
@@ -16,7 +16,7 @@ export const PostService = {
 }
 
 function getAllPost () {
-  return client
+  return getClient()
     .query({
       query: POST_QUERY,
       fetchPolicy: 'no-cache'
@@ -30,7 +30,7 @@ function getAllPost () {
 }
 
 function getPostById (id) {
-  return client
+  return getClient()
     .query({
       query: POST_WITH_ID_QUERY,
       fetchPolicy: 'no-cache',
@@ -45,7 +45,7 @@ function getPostById (id) {
 }
 
 function createPost (title, description) {
-  return client
+  return getClient()
     .mutate({
       mutation: POST_CREATE_MUTATION,
       variables: {
@@ -59,7 +59,7 @@ function createPost (title, description) {
 }
 
 function deletePost (id) {
-  return client
+  return getClient()
     .mutate({
       mutation: POST_DELETE_MUTATION,
       variables: {
@@ -72,7 +72,7 @@ function deletePost (id) {
 }
 
 function updatePost (id, title, description) {
-  return client
+  return getClient()
     .mutate({
       mutation: POST_UPDATE_MUTATION,
       variables: { id, title, description }

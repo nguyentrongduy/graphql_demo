@@ -91,7 +91,8 @@ function checkLoggedIn (parent, args, context) {
             })
           } else {
             resolve({
-              isLogged: true
+              isLogged: true,
+              user: result.data
             })
           }
         })

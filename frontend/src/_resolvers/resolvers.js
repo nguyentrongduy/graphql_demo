@@ -103,6 +103,13 @@ export const CHECK_LOGGEDIN_QUERY = gql`
   query CheckLoggedIn($token: String!) {
     checkLoggedIn(token: $token) {
       isLogged
+      user {
+        id
+        username
+        firstName
+        lastName
+        token
+      }
     }
   }
 `

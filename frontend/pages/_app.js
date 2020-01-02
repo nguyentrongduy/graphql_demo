@@ -3,7 +3,6 @@ import App from 'next/app'
 import { getSnapshot } from 'mobx-state-tree'
 import { Provider } from 'mobx-react'
 import Head from 'next/head'
-import Router from 'next/router'
 
 import { initializeStore } from '../src/models/rootStore'
 
@@ -26,23 +25,6 @@ export default class CustomApp extends App {
   constructor (props) {
     super(props)
     this.store = initializeStore(props.isServer, props.initialState)
-  }
-
-  componentDidMount () {
-    if (process.browser) {
-      if (
-        this.props &&
-        this.props.router &&
-        this.props.router.route !== '/login' &&
-        this.props.router.route !== '/register'
-      ) {
-        this.store.checkLoggedIn().then(resp => {
-          if (!resp) {
-            Router.push('/login')
-          }
-        })
-      }
-    }
   }
 
   render () {

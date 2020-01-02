@@ -4,7 +4,7 @@ import {
   USER_EXIST,
   CHECK_LOGGEDIN_QUERY
 } from '../_resolvers/resolvers'
-import { client } from '../ApolloClient'
+import { getClient } from '../ApolloClient'
 
 export const UserService = {
   login,
@@ -14,7 +14,7 @@ export const UserService = {
 }
 
 function login (username, password) {
-  return client
+  return getClient()
     .query({
       query: LOGIN_QUERY,
       fetchPolicy: 'no-cache',
@@ -27,7 +27,7 @@ function login (username, password) {
 }
 
 function checkLoggedIn (token) {
-  return client
+  return getClient()
     .query({
       query: CHECK_LOGGEDIN_QUERY,
       fetchPolicy: 'no-cache',
@@ -39,7 +39,7 @@ function checkLoggedIn (token) {
 }
 
 function register (user) {
-  return client
+  return getClient()
     .mutate({
       mutation: REGISTER_MUTATION,
       variables: {
@@ -56,7 +56,7 @@ function register (user) {
 }
 
 function userExist (username) {
-  return client
+  return getClient()
     .query({
       query: USER_EXIST,
       fetchPolicy: 'no-cache',

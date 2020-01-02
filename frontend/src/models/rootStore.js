@@ -1,4 +1,6 @@
 import { types, applySnapshot } from 'mobx-state-tree'
+import cookie from 'js-cookie'
+
 import PostStore from './postStore'
 import UserStore from './userStore'
 import AlertStore from './alertStore'
@@ -19,6 +21,11 @@ const RootStore = types
     AlertState: types.maybeNull(AlertStore)
   })
   .actions(seft => ({
+    clearPrivateData () {
+      this.setUserloged(null)
+      this.setPostsData([])
+      this.setPostEditModel(null)
+    },
     setPostsData (data) {
       seft.Posts = data
     },
@@ -75,28 +82,52 @@ const RootStore = types
       if (data.ok) {
         this.setUserloged(data)
         window.localStorage.setItem('user', JSON.stringify(data))
+        cookie.set('token', data.token)
         this.setLoggedIn(true)
       }
       return data.ok
     },
-    async checkLoggedIn () {
+    async checkLoggedIn (cToken = '') {
+      let token = ''
+      let isLogged = false
       if (process.browser) {
-        this.setLoggedIn(false)
         const userStr = window.localStorage.getItem('user')
         if (userStr) {
-          const { token } = JSON.parse(userStr)
-          const { isLogged } = await UserService.checkLoggedIn(token)
-          if (isLogged) {
-            this.setLoggedIn(true)
-          }
+          token = JSON.parse(userStr).token
+        }
+      } else {
+        this.setLoggedIn(false)
+        token = cToken
+      }
+      const res = await UserService.checkLoggedIn(token)
+      if (res && res.isLogged) {
+        if (!process.browser) {
+          const userLogged = { ...res.user, ok: true, token: cToken }
+          this.setUserloged(userLogged)
+        } else {
+          const userLogged = { ...res.user, ok: true, token }
+          window.localStorage.setItem('user', JSON.stringify(userLogged))
+        }
+        this.setLoggedIn(true)
+        isLogged = res.isLogged
+      } else {
+        if (seft.LoggedIn) {
+          const resetToken = cookie.get('token')
+          window.localStorage.setItem(
+            'user',
+            JSON.stringify({ token: resetToken })
+          )
+          this.checkLoggedIn()
         }
       }
-      return seft.LoggedIn
+      return isLogged
     },
     logout () {
+      this.setLoggedIn(false)
+      this.clearPrivateData()
       if (process.browser) {
-        this.setLoggedIn(false)
         window.localStorage.removeItem('user')
+        cookie.remove('token')
       }
     },
     async register (user) {

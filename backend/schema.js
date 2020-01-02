@@ -55,6 +55,7 @@ const typeDefs = gql`
 
   type CheckLoggedInResponse {
     isLogged: Boolean!
+    user: Login
   }
 
   type Login {

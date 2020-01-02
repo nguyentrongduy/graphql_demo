@@ -8,10 +8,14 @@ class Post extends Component {
   constructor (props) {
     super(props)
     this.props.store.getAllPost()
+  }
 
+  componentDidMount () {
     const { store } = this.props
-    store.checkLoggedIn()
-    store.clearAlert()
+    if (process.browser) {
+      store.checkLoggedIn()
+      store.clearAlert()
+    }
   }
 
   setFormStatus (status) {
@@ -98,25 +102,9 @@ class Post extends Component {
             </tbody>
           </table>
         </div>
-
-        {/* {store && !store.IsUpdate ? ( */}
         <div className='col-4'>
           <PostForm />
         </div>
-        {/* ) : null} */}
-        {/* {store && store.IsUpdate && store.PostEditModel ? (
-          <div className='col-4'>
-            <button
-              className='btn btn-success'
-              onClick={() => {
-                store.formIsUpdate(false)
-              }}
-            >
-              Create
-            </button>
-            <PostUpdateForm PostEditModel={store.PostEditModel} />
-          </div>
-        ) : null} */}
       </div>
     )
   }
